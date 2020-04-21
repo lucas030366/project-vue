@@ -8,7 +8,9 @@
     "start": "vue-cli-service serve --open"
   },
   "dependencies": {
+    "apollo-boost": "^0.4.7",
     "core-js": "^3.6.4",
+    "graphql": "^14.6.0",
     "mdbootstrap": "^4.16.0",
     "mdbvue": "6.7.0",
     "vue": "^2.6.11",
@@ -25,6 +27,7 @@
     "babel-eslint": "^10.1.0",
     "node-sass": "^4.12.0",
     "sass-loader": "^8.0.2",
+    "vue-cli-plugin-apollo": "^0.21.3",
     "vue-cli-plugin-mdb": "^2.1.0",
     "vue-template-compiler": "^2.6.11"
   }
