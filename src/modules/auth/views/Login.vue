@@ -2,20 +2,20 @@
 	<mdb-container>
 		<mdb-col lg="4" class="mx-auto mt-5">
 			<form>
-				<mdb-card class="z-depth-5 elegant-color">
+				<mdb-card class="z-depth-5">
 					<mdb-card-header color="teal" class="text-center">{{ texts.text }}</mdb-card-header>
 
 					<mdb-card-body>
-						<mdb-input v-if="!isLogin" label="Nome" type="text" icon="user-circle white-text" v-model.trim="$v.user.name.$model"/>
+						<mdb-input v-if="!isLogin" label="Nome" type="text" icon="user-circle" v-model.trim="$v.user.name.$model"/>
 
-						<mdb-input label="Email" type="email" icon="envelope white-text" v-model.trim="$v.user.email.$model" />
+						<mdb-input label="Email" type="email" icon="envelope" v-model.trim="$v.user.email.$model" />
 
-						<mdb-input label="Senha" type="password" icon="lock white-text" v-model.trim="$v.user.password.$model" />
+						<mdb-input label="Senha" type="password" icon="lock" v-model.trim="$v.user.password.$model" />
 					</mdb-card-body>
 	
-					<h6 @click="isLogin = !isLogin" class="white-text font-weight-bolder text-center">{{ texts.button }}</h6>
+					<h6 @click="isLogin = !isLogin" class="blue-text font-weight-bolder text-center">{{ texts.button }}</h6>
 
-					<button type="submit" :disabled="$v.$invalid" @click="submit" class="btn btn-md teal float-right white-text">
+					<button type="button" :disabled="$v.$invalid" @click="submit" class="btn btn-md teal float-right white-text">
 						{{ texts.text }}
 					</button>
 
@@ -27,6 +27,8 @@
 
 <script>
 import * as mdbvue from "mdbvue";
+
+import AuthService from "../services/auth-service"
 
 import { required, email, minLength } from "vuelidate/lib/validators";
 
@@ -45,7 +47,7 @@ export default {
 		const validations = {
 			user: {
 				email: { required, email },
-				password: { required, minLength: minLength(6) }
+				password: { required, minLength: minLength(4) }
 			}
 		};
 
@@ -68,8 +70,10 @@ export default {
 		}
 	},
 	methods: {
-		submit() {
+		async submit() {
 			console.log("User: ", this.user);
+			const authData = await AuthService.login(this.user)
+			console.log("AuthData: ", authData)
 		}
 	}
 };

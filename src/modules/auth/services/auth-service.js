@@ -1,0 +1,30 @@
+import apollo, { onLogin } from "@/plugins/apollo"
+import LoginMutation from "../graphql/Login.gql"
+
+const login = async variables => {
+  const response = await apollo.mutate({
+    mutation: LoginMutation,
+    variables
+  })
+  
+  const login = response.data.login
+  await onLogin(apollo, login.token)
+  return login
+}
+
+// const criarTarefa = variables => {
+//   return variables
+//     .then(response => {
+//       apollo.mutate({
+//         mutation: LoginMutation,
+//         variables
+//       })
+//       return response.data
+//     })
+
+// },
+
+export default {
+  login
+}
+
