@@ -6,19 +6,30 @@
 					<mdb-card-header color="teal" class="text-center">{{ texts.text }}</mdb-card-header>
 
 					<mdb-card-body>
-						<mdb-input v-if="!isLogin" label="Nome" type="text" icon="user-circle" v-model.trim="$v.user.name.$model"/>
+						<mdb-input
+							v-if="!isLogin"
+							label="Nome"
+							type="text"
+							icon="user-circle"
+							v-model.trim="$v.user.name.$model"
+						/>
 
 						<mdb-input label="Email" type="email" icon="envelope" v-model.trim="$v.user.email.$model" />
 
 						<mdb-input label="Senha" type="password" icon="lock" v-model.trim="$v.user.password.$model" />
 					</mdb-card-body>
-	
-					<h6 @click="isLogin = !isLogin" class="blue-text font-weight-bolder text-center">{{ texts.button }}</h6>
 
-					<button type="button" :disabled="$v.$invalid" @click="submit" class="btn btn-md teal float-right white-text">
-						{{ texts.text }}
-					</button>
+					<h6
+						@click="isLogin = !isLogin"
+						class="blue-text font-weight-bolder text-center"
+					>{{ texts.button }}</h6>
 
+					<button
+						type="button"
+						:disabled="$v.$invalid"
+						@click="submit"
+						class="btn btn-md teal float-right white-text"
+					>{{ texts.text }}</button>
 				</mdb-card>
 			</form>
 		</mdb-col>
@@ -28,7 +39,7 @@
 <script>
 import * as mdbvue from "mdbvue";
 
-import AuthService from "../services/auth-service"
+import AuthService from "../services/auth-service";
 
 import { required, email, minLength } from "vuelidate/lib/validators";
 
@@ -70,10 +81,11 @@ export default {
 		}
 	},
 	methods: {
-		async submit() {
-			console.log("User: ", this.user);
-			const authData = await AuthService.login(this.user)
-			console.log("AuthData: ", authData)
+    async submit () {
+      const authData = this.isLogin
+        ? await AuthService.login(this.user)
+        : await AuthService.signup(this.user)
+      console.log('AuthData: ', authData)
 		}
 	}
 };
