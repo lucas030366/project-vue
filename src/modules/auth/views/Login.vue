@@ -3,7 +3,10 @@
 		<mdb-col lg="4" class="mx-auto mt-5">
 			<form>
 				<mdb-card class="z-depth-5">
-					<mdb-card-header color="teal" class="text-center">{{ texts.text }}</mdb-card-header>
+					<mdb-card-header color="teal" class="text-left py-3">
+						{{ texts.text }}
+						<div v-show="isLoading" class="spinner-border float-right" role="status"></div>
+					</mdb-card-header>
 
 					<mdb-card-body>
 						<mdb-input
@@ -31,6 +34,11 @@
 						class="btn btn-md teal float-right white-text"
 					>{{ texts.text }}</button>
 				</mdb-card>
+
+				<mdb-alert v-show="showAlert" color="warning" class="mt-4">
+					<i @click="showAlert = !showAlert" class="fas fa-times float-right"></i>
+					{{ error }}
+				</mdb-alert>
 			</form>
 		</mdb-col>
 	</mdb-container>
@@ -38,6 +46,7 @@
 
 <script>
 import * as mdbvue from "mdbvue";
+import {formatError} from "@/utils"
 
 import AuthService from "../services/auth-service";
 
@@ -51,7 +60,10 @@ export default {
 	data() {
 		return {
 			user: { name: null, email: null, password: null },
-			isLogin: true
+			isLogin: true,
+			isLoading: false,
+			error: null,
+			showAlert: false
 		};
 	},
 	validations() {
@@ -81,11 +93,20 @@ export default {
 		}
 	},
 	methods: {
-    async submit () {
-      const authData = this.isLogin
-        ? await AuthService.login(this.user)
-        : await AuthService.signup(this.user)
-      console.log('AuthData: ', authData)
+		async submit() {
+			this.isLoading = true;
+
+			try {
+				this.isLogin
+					? await AuthService.login(this.user)
+					: await AuthService.signup(this.user);
+				this.$router.push(this.$route.query.redirect || "/dashboard")
+			} catch (error) {
+				this.error = formatError(error.message);
+				this.showAlert = true;
+			} finally {
+				this.isLoading = false;
+			}
 		}
 	}
 };
