@@ -1,20 +1,16 @@
 <template>
-
-		<AppLayout />
-
-
+	<mdb-container>
+		<h1 class="white-text">App</h1>
+	</mdb-container>
 </template>
 
 <script>
 import * as mdb from "mdbvue";
 
-import AppLayout from "../components/AppLayout"
-
 export default {
-	name: "Dashboard",
+  name: "AppLayout",
 	components: {
-		...mdb,
-		AppLayout
+		...mdb
 	}
 };
 </script>
