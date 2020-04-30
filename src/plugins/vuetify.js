@@ -6,11 +6,15 @@ import "@fortawesome/fontawesome-free/css/all.css"
 Vue.use(Vuetify);
 
 export default new Vuetify({
-    lang: {
-      locales: { pt },
-      current: 'pt',
-    },
+  lang: {
+    locales: { pt },
+    current: 'pt',
+  },
   icons: {
     iconfont: 'fa',
   },
+  theme: {
+    dark: true
+  }
+
 });
