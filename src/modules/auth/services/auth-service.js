@@ -21,6 +21,8 @@ const signup = async variables => {
   return response.data.signup
 }
 
+/*********************************************************/
+
 const user = async ( options = {} ) => {
   const response = await apollo.query({
     query: UserQuery,

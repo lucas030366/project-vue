@@ -61,7 +61,7 @@
 <script>
 import { required, email, minLength } from "vuelidate/lib/validators";
 import AuthService from "../services/auth-service";
-import { formatError } from "@/utils"
+import { formatError } from "@/utils";
 
 export default {
 	name: "Login",
@@ -97,11 +97,12 @@ export default {
 		async submit() {
 			this.isLoading = true;
 			try {
-				const authData = this.isLogin
+				this.isLogin
 					? await AuthService.login(this.user)
 					: await AuthService.signup(this.user);
+				this.$router.push(this.$route.query.redirect || "/dashboard");
 			} catch (error) {
-				this.error = formatError(error.message)
+				this.error = formatError(error.message);
 				this.showSnackbar = true;
 			} finally {
 				this.isLoading = false;

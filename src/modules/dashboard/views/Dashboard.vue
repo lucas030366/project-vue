@@ -1,6 +1,15 @@
 <template>
-
-		<h3>Dashboars</h3>
-
-
+	<AppLayout />
 </template>
+
+<script>
+
+import AppLayout from "../components/AppLayout";
+
+export default {
+	name: "Dashboard",
+	components: {
+		AppLayout
+	}
+};
+</script>
