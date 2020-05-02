@@ -1,6 +1,6 @@
 import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from "apollo-boost"
 
-const AUTH_TOKEN = "apollo-token"
+const AUTH_TOKEN = "token"
 
 const resetApolloClient = async apollo => {
   try {
