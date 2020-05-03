@@ -1,0 +1,36 @@
+# import * from './Operation.graphql'
+
+query RecordsByMonth (
+  $month: String,
+  $accountsIds: [ID!],
+  $categoriesIds: [ID!],
+  $type: Operation
+){
+  records(
+    month: $month,
+    accountsIds: $accountsIds,
+    categories: $categoriesIds,
+    type: $type,
+  ) {
+    id
+    type 
+    amount
+    date
+    description
+    note
+    tags
+    account{
+      id
+      description
+    }
+    category{
+      id
+      description
+      operation
+    }
+    user{
+      id
+      name
+    }
+  }
+}
