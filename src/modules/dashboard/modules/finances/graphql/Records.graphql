@@ -9,7 +9,7 @@ query RecordsByMonth (
   records(
     month: $month,
     accountsIds: $accountsIds,
-    categories: $categoriesIds,
+    categoriesIds: $categoriesIds,
     type: $type,
   ) {
     id
