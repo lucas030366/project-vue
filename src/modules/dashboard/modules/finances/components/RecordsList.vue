@@ -1,7 +1,6 @@
 <template>
 	<div>
-
-		<ToolbarByMonth class="mb-2" format="MM-YYYY" @month="changeMonth"/>
+		<ToolbarByMonth format="MM-YYYY" @month="changeMonth"  />
 
 		<v-card v-if="records.length > 0">
 			<v-list two-line subheader>
@@ -14,16 +13,19 @@
 			<v-footer color="pa-2">
 				<v-flex text-right>
 					<h4 class="font-weight-bolder">
-						<span>Saldo do mês: </span>
-						<strong class="ml-5" :class="amountColor(totalAmount)">
-							{{ formatCurrency(totalAmount) }}
-						</strong>
+						<span>Saldo do mês:</span>
+						<strong class="ml-5" :class="amountColor(totalAmount)">{{ formatCurrency(totalAmount) }}</strong>
 					</h4>
 				</v-flex>
 			</v-footer>
 		</v-card>
 
-		<v-alert v-else type="warning" dense bolder="top" class="mt-4">Sem registros</v-alert>
+		<v-card v-else>
+			<v-card-text color="grey" class="text-center">
+				<v-icon size="100" class="grey--text">fas fa-clipboard-list</v-icon>
+				<p class="mt-2 font-weight-bold">Nenhum lançamento encontrado</p>
+			</v-card-text>
+		</v-card>
 	</div>
 </template>
 
@@ -31,8 +33,8 @@
 import moment from "moment";
 import { groupBy } from "@/utils";
 
-import amountColorMixin from "@/mixins/amount-color"
-import formatCurrencyMixin from "@/mixins/format-currency"
+import amountColorMixin from "@/mixins/amount-color";
+import formatCurrencyMixin from "@/mixins/format-currency";
 
 import RecordsListItem from "./RecordsListItem";
 import ToolbarByMonth from "./ToolbarByMonth";
@@ -41,10 +43,7 @@ import RecordsService from "../services/records-service";
 
 export default {
 	name: "RecordsList",
-	mixins:[
-		amountColorMixin,
-		formatCurrencyMixin
-	],
+	mixins: [amountColorMixin, formatCurrencyMixin],
 	components: {
 		RecordsListItem,
 		ToolbarByMonth
@@ -54,9 +53,12 @@ export default {
 			records: {}
 		};
 	},
-	methods:{
-		changeMonth(month){
-			console.log("Mes: ", month)
+	methods: {
+		changeMonth(month) {
+			this.setRecords(month);
+		},
+		async setRecords(month) {
+			this.records = await RecordsService.records({ month });
 		}
 	},
 	computed: {
@@ -65,12 +67,12 @@ export default {
 				return moment(record[dateKey]).format("DD/MM/YYYY");
 			});
 		},
-		totalAmount(){
-			return this.records.reduce((amount, newAmount) => amount + newAmount.amount, 0)
+		totalAmount() {
+			return this.records.reduce(
+				(amount, newAmount) => amount + newAmount.amount,
+				0
+			);
 		}
-	},
-	async created() {
-		this.records = await RecordsService.records();
 	}
 };
 </script>
