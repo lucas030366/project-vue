@@ -7,6 +7,12 @@ import AuthService from "@/modules/auth/services/auth-service"
 import authRoutes from "@/modules/auth/router/index"
 import dashboardRoutes from "@/modules/dashboard/router/index"
 
+//duplo clique na query param
+const originalPush = Router.prototype.push;
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+};
+
 Vue.use(Router)
 
 const router = new Router({

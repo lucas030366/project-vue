@@ -4,9 +4,8 @@
 		@input="$emit('input', $event)"
 		:mini-variant="mini"
 		absolute
-		temporary
 		app
-		clipped
+		temporary
 	>
 		<v-list>
 			<v-list-item v-if="mini" @click="mini = !mini">
@@ -65,6 +64,18 @@ export default {
 					title: "Home",
 					icon: "fas fa-tachometer-alt",
 					url: "/dashboard",
+					exact: true
+				},
+				{
+					title: "Receita",
+					icon: "fas fa-plus-circle",
+					url: "/dashboard/records/add?type=credit",
+					exact: true
+				},
+				{
+					title: "Despesa",
+					icon: "fas fa-minus-circle",
+					url: "/dashboard/records/add?type=debit",
 					exact: true
 				}
 			],

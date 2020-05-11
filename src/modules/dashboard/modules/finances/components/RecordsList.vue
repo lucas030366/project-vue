@@ -1,6 +1,7 @@
 <template>
 	<div>
-		<ToolbarByMonth format="MM-YYYY" @month="changeMonth"  />
+		<TotalBalance class="mb-2" />
+		<ToolbarByMonth format="MM-YYYY" :month="$route.query.month" @month="changeMonth" />
 
 		<v-card v-if="records.length > 0">
 			<v-list two-line subheader>
@@ -38,6 +39,7 @@ import formatCurrencyMixin from "@/mixins/format-currency";
 
 import RecordsListItem from "./RecordsListItem";
 import ToolbarByMonth from "./ToolbarByMonth";
+import TotalBalance from "./TotalBalance";
 
 import RecordsService from "../services/records-service";
 
@@ -46,7 +48,8 @@ export default {
 	mixins: [amountColorMixin, formatCurrencyMixin],
 	components: {
 		RecordsListItem,
-		ToolbarByMonth
+		ToolbarByMonth,
+		TotalBalance
 	},
 	data() {
 		return {
@@ -55,6 +58,10 @@ export default {
 	},
 	methods: {
 		changeMonth(month) {
+			this.$router.push({
+				path: this.$route.path,
+				query: { month }				
+			});
 			this.setRecords(month);
 		},
 		async setRecords(month) {

@@ -31,11 +31,12 @@ export default {
 	name: "ToolbarByMonth",
 	props: {
 		color: String,
-		format: String
+		format: String,
+		month: String
 	},
 	data() {
 		return {
-			date: moment()
+			date: null
 		};
 	},
 	methods: {
@@ -49,6 +50,9 @@ export default {
 		decrement() {
 			this.date = this.date.clone().subtract(1, "month");
 			this.emit();
+		},
+		setCurrentMonth(){
+			this.date = this.month ? moment(this.month, this.format) : moment()
 		}
 	},
 	computed: {
@@ -57,6 +61,7 @@ export default {
 		}
 	},
 	created() {
+		this.setCurrentMonth()
 		this.emit();
 	}
 };
