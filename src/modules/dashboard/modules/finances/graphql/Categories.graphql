@@ -1,4 +1,5 @@
 # import * from './Operation.graphql'
+
 query Categories($operation: Operation) {
   categories(operation: $operation){
     id
@@ -6,7 +7,7 @@ query Categories($operation: Operation) {
     operation
     user {
       id
-      nome
+      name
       email
     }
   }
