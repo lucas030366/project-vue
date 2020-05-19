@@ -2,13 +2,20 @@
 	<v-container text-center>
 		<v-layout row wrap>
 			<v-col xs="12" sm="6" md="4" lg="4">
-				<p>formulario</p>
+				<NumericDisplay :color="color" v-model="$v.record.amount.$model" />
 			</v-col>
 			<v-col xs="12" sm="6" md="8" lg="8">
 				<v-card>
 					<v-card-text>
 						<v-form>
-							<v-dialog v-model="showDateDialog" persistent width="290px" fullWidth>
+							<v-dialog
+								ref="dateDialog"
+								v-model="showDateDialog"
+								:return-value.sync="record.date"
+								persistent
+								width="290px"
+								fullWidth
+							>
 								<template v-slot:activator="{ on }">
 									<v-text-field
 										name="date"
@@ -21,14 +28,10 @@
 									></v-text-field>
 								</template>
 
-								<v-date-picker :color="color" locale="pt-br" scrollable v-model="record.date">
+								<v-date-picker :color="color" locale="pt-br" scrollable v-model="dateDialogValue">
 									<v-spacer></v-spacer>
-									<v-btn @click="showDateDialog = !showDateDialog" flat text :color="color">
-										Cancelar
-									</v-btn>
-										<v-btn @click="showDateDialog = !showDateDialog" flat text :color="color">
-										Ok
-									</v-btn>
+									<v-btn @click="cancelDateDialog" text :color="color">Cancelar</v-btn>
+									<v-btn @click="$refs.dateDialog.save(dateDialogValue)" text :color="color">Ok</v-btn>
 								</v-date-picker>
 							</v-dialog>
 
@@ -118,8 +121,11 @@ import { decimal, minLength, required } from "vuelidate/lib/validators";
 import AccountsService from "../services/accounts-services";
 import CategoriesService from "../services/categories-services";
 
+import NumericDisplay from "../components/NumericDisplay";
+
 export default {
 	name: "RecordsAdd",
+	components: { NumericDisplay },
 	data() {
 		return {
 			record: {
@@ -136,7 +142,8 @@ export default {
 			categories: [],
 			showNoteInput: false,
 			showTagsInput: false,
-			showDateDialog: false
+			showDateDialog: false,
+			dateDialogValue: moment().format("YYYY-MM-DD")
 		};
 	},
 	validations: {
@@ -170,6 +177,10 @@ export default {
 		},
 		submit() {
 			console.log(this.record);
+		},
+		cancelDateDialog() {
+			this.showDateDialog = false;
+			this.dateDialogValue = this.record.date;
 		}
 	},
 	computed: {
@@ -186,7 +197,7 @@ export default {
 			}
 		},
 		formattedDate() {
-			return moment(this.record.date).format("DD-MM-YYYY"); //16-05-2020
+			return moment(this.record.date).format("DD / MMM / YYYY"); //16-05-2020
 		}
 	},
 	async created() {
