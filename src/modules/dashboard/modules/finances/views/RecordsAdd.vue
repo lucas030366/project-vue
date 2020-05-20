@@ -105,7 +105,7 @@
 					<v-icon>fas fa-times</v-icon>
 				</v-btn>
 
-				<v-btn @click="submit" :color="color" large fab class="ma-4">
+				<v-btn @click="submit" :color="color" :disabled="$v.$invalid" large fab class="ma-4">
 					<v-icon>fas fa-check</v-icon>
 				</v-btn>
 			</v-col>
@@ -120,6 +120,7 @@ import { decimal, minLength, required } from "vuelidate/lib/validators";
 
 import AccountsService from "../services/accounts-services";
 import CategoriesService from "../services/categories-services";
+import RecordsService from "../services/records-services"
 
 import NumericDisplay from "../components/NumericDisplay";
 
@@ -175,7 +176,13 @@ export default {
 			}
 			this.setTitle({ title });
 		},
-		submit() {
+		async submit() {
+			try {
+				await RecordsService.createRecord(this.record)
+				this.$router.push("/dashboard/records")
+			} catch (error) {
+				console.log("ERRO AO CRIAR", error)
+			}
 			console.log(this.record);
 		},
 		cancelDateDialog() {
@@ -211,6 +218,7 @@ export default {
 		const { type } = to.query;
 		this.changeTitle(type);
 		this.record.type = type.toUpperCase();
+		this.record.categoryId = null
 		this.categories = await CategoriesService.categories({ operation: type });
 		next();
 	}

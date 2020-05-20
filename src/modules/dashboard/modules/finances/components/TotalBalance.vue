@@ -12,7 +12,7 @@
 <script>
 import FormatCurrencyMixin from "@/mixins/format-currency";
 
-import RecordsService from "../services/records-service";
+import RecordsService from "../services/records-services";
 
 export default {
 	name: "TotalBalance",

@@ -33,6 +33,8 @@
 <script>
 import moment from "moment";
 import { groupBy } from "@/utils";
+import { Subject } from "rxjs";
+import { mergeMap } from "rxjs/operators";
 
 import amountColorMixin from "@/mixins/amount-color";
 import formatCurrencyMixin from "@/mixins/format-currency";
@@ -41,7 +43,7 @@ import RecordsListItem from "./RecordsListItem";
 import ToolbarByMonth from "./ToolbarByMonth";
 import TotalBalance from "./TotalBalance";
 
-import RecordsService from "../services/records-service";
+import RecordsService from "../services/records-services";
 
 export default {
 	name: "RecordsList",
@@ -53,19 +55,23 @@ export default {
 	},
 	data() {
 		return {
-			records: {}
+			records: [],
+			monthSubjct$: new Subject()
 		};
 	},
 	methods: {
 		changeMonth(month) {
 			this.$router.push({
 				path: this.$route.path,
-				query: { month }				
+				query: { month }
 			});
-			this.setRecords(month);
+			this.monthSubjct$.next({ month });
 		},
-		async setRecords(month) {
-			this.records = await RecordsService.records({ month });
+		setRecords(month) {
+			console.log("Subscribing...");
+			this.monthSubjct$
+				.pipe(mergeMap(variables => RecordsService.records(variables)))
+				.subscribe(records => (this.records = records));
 		}
 	},
 	computed: {
@@ -80,6 +86,9 @@ export default {
 				0
 			);
 		}
+	},
+	created() {
+		this.setRecords();
 	}
 };
 </script>
