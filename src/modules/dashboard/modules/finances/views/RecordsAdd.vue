@@ -183,7 +183,7 @@ export default {
 			} catch (error) {
 				console.log("ERRO AO CRIAR", error)
 			}
-			console.log(this.record);
+			console.log("Record: ", this.record);
 		},
 		cancelDateDialog() {
 			this.showDateDialog = false;

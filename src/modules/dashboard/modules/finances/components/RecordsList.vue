@@ -56,7 +56,7 @@ export default {
 	data() {
 		return {
 			records: [],
-			monthSubjct$: new Subject()
+			monthSubject$: new Subject() //emissor de eventos
 		};
 	},
 	methods: {
@@ -65,12 +65,12 @@ export default {
 				path: this.$route.path,
 				query: { month }
 			});
-			this.monthSubjct$.next({ month });
+			this.monthSubject$.next({ month });
 		},
 		setRecords(month) {
 			console.log("Subscribing...");
-			this.monthSubjct$
-				.pipe(mergeMap(variables => RecordsService.records(variables)))
+			this.monthSubject$
+				.pipe( mergeMap( variables => RecordsService.records(variables) ) )
 				.subscribe(records => (this.records = records));
 		}
 	},
