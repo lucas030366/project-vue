@@ -1,4 +1,4 @@
-# import * from './Operation.gql'
+# import * from './Operation.graphql'
 
 mutation RecordCreate (
   $type: Operation!,

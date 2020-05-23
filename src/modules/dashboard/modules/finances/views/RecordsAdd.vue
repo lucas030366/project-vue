@@ -43,7 +43,15 @@
 								item-text="description"
 								item-value="id"
 								v-model="$v.record.accountId.$model"
-							></v-select>
+							>
+								<v-list-item slot="prepend-item" ripple @click="add('account')">
+									<v-list-item-action>
+										<v-icon>fas fa-plus</v-icon>
+									</v-list-item-action>
+									<v-list-item-title>Conta</v-list-item-title>
+									<v-divider />
+								</v-list-item>
+							</v-select>
 
 							<v-select
 								name="category"
@@ -53,7 +61,15 @@
 								item-text="description"
 								item-value="id"
 								v-model="$v.record.categoryId.$model"
-							></v-select>
+							>
+								<v-list-item slot="prepend-item" ripple @click="add('category')">
+									<v-list-item-action>
+										<v-icon>fas fa-plus</v-icon>
+									</v-list-item-action>
+									<v-list-item-title>Categoria</v-list-item-title>
+									<v-divider slot="prepend-item" class="mt-2"></v-divider>
+								</v-list-item>
+							</v-select>
 
 							<v-text-field
 								name="description"
@@ -110,6 +126,15 @@
 				</v-btn>
 			</v-col>
 		</v-layout>
+		<v-dialog v-model="showAccountCategoryDialog" max-width="350px" persistent>
+			<v-card>
+				<AccountCategoryAdd
+					v-if="showAccountCategoryDialog"
+					@close="showAccountCategoryDialog=false"
+					:entity="entity"
+				/>
+			</v-card>
+		</v-dialog>
 	</v-container>
 </template>
 
@@ -120,13 +145,17 @@ import { decimal, minLength, required } from "vuelidate/lib/validators";
 
 import AccountsService from "../services/accounts-services";
 import CategoriesService from "../services/categories-services";
-import RecordsService from "../services/records-services"
+import RecordsService from "../services/records-services";
 
 import NumericDisplay from "../components/NumericDisplay";
+import AccountCategoryAdd from "../components/AccountCategoryAdd";
+
+import { Subject } from "rxjs";
+import { mergeMap, distinctUntilChanged } from "rxjs/operators";
 
 export default {
 	name: "RecordsAdd",
-	components: { NumericDisplay },
+	components: { NumericDisplay, AccountCategoryAdd },
 	data() {
 		return {
 			record: {
@@ -139,11 +168,14 @@ export default {
 				note: null,
 				tags: null
 			},
+			entity: null,
+			operationSubject$: new Subject(),
 			accounts: [],
 			categories: [],
 			showNoteInput: false,
 			showTagsInput: false,
 			showDateDialog: false,
+			showAccountCategoryDialog: false,
 			dateDialogValue: moment().format("YYYY-MM-DD")
 		};
 	},
@@ -178,16 +210,20 @@ export default {
 		},
 		async submit() {
 			try {
-				await RecordsService.createRecord(this.record)
-				this.$router.push("/dashboard/records")
+				await RecordsService.createRecord(this.record);
+				this.$router.push("/dashboard/records");
 			} catch (error) {
-				console.log("ERRO AO CRIAR", error)
+				console.log("ERRO AO CRIAR", error);
 			}
 			console.log("Record: ", this.record);
 		},
 		cancelDateDialog() {
 			this.showDateDialog = false;
 			this.dateDialogValue = this.record.date;
+		},
+		add(entity) {
+			this.showAccountCategoryDialog = true;
+			this.entity = entity;
 		}
 	},
 	computed: {
@@ -207,19 +243,30 @@ export default {
 			return moment(this.record.date).format("DD / MMM / YYYY"); //16-05-2020
 		}
 	},
-	async created() {
+	created() {
 		this.changeTitle(this.$route.query.type);
-		this.accounts = await AccountsService.accounts();
-		this.categories = await CategoriesService.categories({
-			operation: this.$route.query.type
-		});
+
+		AccountsService.accounts().subscribe(
+			accounts => (this.accounts = accounts)
+		);
+
+
+		this.operationSubject$
+			.pipe(
+				distinctUntilChanged(),mergeMap(operation =>
+					CategoriesService.categories({ operation })
+				)
+			)
+			.subscribe(categories => (this.categories = categories));
+
+		this.operationSubject$.next(this.$route.query.type);
 	},
-	async beforeRouteUpdate(to, from, next) {
+	beforeRouteUpdate(to, from, next) {
 		const { type } = to.query;
 		this.changeTitle(type);
 		this.record.type = type.toUpperCase();
-		this.record.categoryId = null
-		this.categories = await CategoriesService.categories({ operation: type });
+		this.record.categoryId = null;
+		this.operationSubject$.next(type);
 		next();
 	}
 };

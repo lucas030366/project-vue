@@ -23,17 +23,16 @@ const createRecord = async (variables) => {
     mutation: RecordCreateMutation,
     variables,
     update: (proxy, { data: { createRecord } }) => {
-      const month = moment(createRecord.date).format("MM-YYYY")
+      const month = moment(createRecord.date.substr(0, 10)).format("MM-YYYY")
       const variables = { month }
 
+      //Records
       try {
         const recordsData = proxy.readQuery({
           query: RecordsQuery,
           variables
         })
-
         recordsData.records = [...recordsData.records, createRecord]
-
         proxy.writeQuery({
           query: RecordsQuery,
           variables,
@@ -42,6 +41,32 @@ const createRecord = async (variables) => {
 
       } catch (error) {
         console.log("Query Records não foi lida", error.message)
+      }
+
+      //TotalBalance
+      try {
+
+        const currentDate = moment().endOf("day")
+        const recordDate = moment(createRecord.date.substr(0, 10))
+        const variables = { date: currentDate.format("YYYY-MM-DD") }
+
+        if (recordDate.isBefore(currentDate)) {
+          const totalBalanceData = proxy.readQuery({
+            query: TotalBalanceQuery,
+            variables
+          })
+
+          totalBalanceData.totalBalance = +(totalBalanceData.totalBalance + createRecord.amount).toFixed(2)
+
+          proxy.writeQuery({
+            query: TotalBalanceQuery,
+            variables,
+            data: totalBalanceData
+          })
+        }
+
+      } catch (error) {
+        console.log("Query TotalBalance não foi lida", error.message)
       }
     }
   })
