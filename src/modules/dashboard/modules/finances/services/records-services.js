@@ -2,17 +2,30 @@ import apollo from "@/plugins/apollo"
 import moment from "moment"
 import { from } from "rxjs"
 import { map } from "rxjs/operators"
+import md5 from "md5"
 
 import RecordCreateMutation from "../graphql/RecordCreate.graphql"
 
 import RecordsQuery from "../graphql/Records.graphql"
 import TotalBalanceQuery from "../graphql/TotalBalance.graphql"
 
+const recordsWatchQuery = {}
+
 const records = (variables) => {
-  const queryRef = apollo.watchQuery({
-    query: RecordsQuery,
-    variables
-  })
+  const hashKey = md5(Object.keys(variables).map(key => variables[key]).join("_"))
+  console.log("HASHKEY", hashKey)
+
+  let queryRef = recordsWatchQuery[hashKey]
+
+  if (!queryRef) {
+    queryRef = apollo.watchQuery({
+      query: RecordsQuery,
+      variables
+    })
+
+    recordsWatchQuery[hashKey] = queryRef
+  }
+
   return from(queryRef).pipe(
     map(response => response.data.records)
   )

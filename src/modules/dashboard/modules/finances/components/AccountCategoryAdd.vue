@@ -21,6 +21,9 @@
 </template>
 
 <script>
+import AccoutsService from "../services/accounts-services";
+import CategoriesService from "../services/categories-services";
+
 import { required, minLength } from "vuelidate/lib/validators";
 export default {
 	name: "AccountCategoryAdd",
@@ -58,8 +61,21 @@ export default {
 		};
 	},
 	methods: {
-		save() {
-			console.log("Item", this.item);
+		async save() {
+			let promise = null;
+
+			switch (this.entity) {
+				case 'account':
+					promise = AccoutsService.createAccount(this.item);
+					break;
+
+				case 'category':
+					promise = CategoriesService.createCategory(this.item);
+					break;
+			}
+			const item = await promise;
+	
+			this.$emit("saved", item)
 		}
 	},
 	computed: {

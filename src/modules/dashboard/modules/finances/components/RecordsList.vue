@@ -56,7 +56,8 @@ export default {
 	data() {
 		return {
 			records: [],
-			monthSubject$: new Subject() //emissor de eventos
+			monthSubject$: new Subject(), //emissor de eventos
+			subscriptions: []
 		};
 	},
 	methods: {
@@ -68,16 +69,17 @@ export default {
 			this.monthSubject$.next({ month });
 		},
 		setRecords(month) {
-			console.log("Subscribing...");
-			this.monthSubject$
-				.pipe( mergeMap( variables => RecordsService.records(variables) ) )
-				.subscribe(records => (this.records = records));
+			this.subscriptions.push(
+				this.monthSubject$
+					.pipe(mergeMap(variables => RecordsService.records(variables)))
+					.subscribe(records => (this.records = records))
+			);
 		}
 	},
 	computed: {
-		mappedRecords() {			
+		mappedRecords() {
 			return groupBy(this.records, "date", (record, dateKey) => {
-				return moment(record[dateKey].substr(0,10)).format("DD/MM/YYYY");
+				return moment(record[dateKey].substr(0, 10)).format("DD/MM/YYYY");
 			});
 		},
 		totalAmount() {
@@ -89,6 +91,9 @@ export default {
 	},
 	created() {
 		this.setRecords();
+	},
+	destroyed(){
+		this.subscriptions.forEach(s => s.unsubscribe())
 	}
 };
 </script>

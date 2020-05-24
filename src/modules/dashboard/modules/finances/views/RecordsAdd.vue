@@ -131,6 +131,7 @@
 				<AccountCategoryAdd
 					v-if="showAccountCategoryDialog"
 					@close="showAccountCategoryDialog=false"
+					@saved="accountCategorySaved"
 					:entity="entity"
 				/>
 			</v-card>
@@ -172,6 +173,7 @@ export default {
 			operationSubject$: new Subject(),
 			accounts: [],
 			categories: [],
+			subscriptions: [],
 			showNoteInput: false,
 			showTagsInput: false,
 			showDateDialog: false,
@@ -224,6 +226,10 @@ export default {
 		add(entity) {
 			this.showAccountCategoryDialog = true;
 			this.entity = entity;
+		},
+		accountCategorySaved(item) {
+			this.showAccountCategoryDialog = false;
+			this.record[`${this.entity}Id`] = item.id;
 		}
 	},
 	computed: {
@@ -246,18 +252,20 @@ export default {
 	created() {
 		this.changeTitle(this.$route.query.type);
 
-		AccountsService.accounts().subscribe(
-			accounts => (this.accounts = accounts)
+		this.subscriptions.push(
+			AccountsService.accounts().subscribe(
+				accounts => (this.accounts = accounts)
+			)
 		);
 
-
-		this.operationSubject$
-			.pipe(
-				distinctUntilChanged(),mergeMap(operation =>
-					CategoriesService.categories({ operation })
+		this.subscriptions.push(
+			this.operationSubject$
+				.pipe(
+					distinctUntilChanged(),
+					mergeMap(operation => CategoriesService.categories({ operation }))
 				)
-			)
-			.subscribe(categories => (this.categories = categories));
+				.subscribe(categories => (this.categories = categories))
+		);
 
 		this.operationSubject$.next(this.$route.query.type);
 	},
@@ -268,6 +276,10 @@ export default {
 		this.record.categoryId = null;
 		this.operationSubject$.next(type);
 		next();
+	},
+	destroyed() {
+		this.subscriptions.forEach(s => s.unsubscribe());
+		console.log(this.subscriptions);
 	}
 };
 </script>
