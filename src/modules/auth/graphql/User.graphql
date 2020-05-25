@@ -1,7 +1,6 @@
+#import './UserFragment.graphql'
 query User{
   user{
-    id
-    name
-    email
+    ...UserFragment
   }
 }

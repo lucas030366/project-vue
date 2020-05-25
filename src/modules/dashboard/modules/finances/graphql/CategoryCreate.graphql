@@ -1,17 +1,12 @@
 # import * from './Operation.graphql'
+#import './CategoryFragment.graphql'
 
 mutation CreateCategory($description: String!, $operation: Operation!){
 
   createCategory(
     description: $description, 
-    operation: $operation){
-      id
-      description
-      operation
-      user {
-       id
-       name
-       email
+    operation: $operation
+    ){
+      ...CategoryFragment
     }
   }
-}

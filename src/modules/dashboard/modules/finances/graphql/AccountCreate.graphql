@@ -1,11 +1,6 @@
+#import './AccountFragment.graphql'
 mutation CreateAccount($description: String!){
   createAccount(description: $description){
-    id
-    description
-    user {
-      id
-      name
-      email
-    }
+    ...AccountFragment
   }
 }

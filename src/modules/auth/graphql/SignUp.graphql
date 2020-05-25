@@ -1,3 +1,4 @@
+#import './UserFragment.graphql'
 mutation SignUp($name: String!, $email: String!, $password: String!) {
 
   signup (
@@ -6,9 +7,7 @@ mutation SignUp($name: String!, $email: String!, $password: String!) {
     name: $name) {
       token
       user {
-        id
-        name
-        email
+       ...UserFragment
      }
   }
 }

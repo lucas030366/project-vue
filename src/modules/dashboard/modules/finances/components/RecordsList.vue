@@ -1,7 +1,14 @@
 <template>
 	<div>
 		<TotalBalance class="mb-2" />
-		<ToolbarByMonth format="MM-YYYY" :month="$route.query.month" @month="changeMonth" />
+		<ToolbarByMonth
+			format="MM-YYYY"
+			:month="$route.query.month"
+			:showSlot="true"
+			@month="changeMonth"
+		>
+			<RecordsFilter />
+		</ToolbarByMonth>
 
 		<v-card v-if="records.length > 0">
 			<v-list two-line subheader>
@@ -39,6 +46,7 @@ import { mergeMap } from "rxjs/operators";
 import amountColorMixin from "@/mixins/amount-color";
 import formatCurrencyMixin from "@/mixins/format-currency";
 
+import RecordsFilter from "./RecordsFilter";
 import RecordsListItem from "./RecordsListItem";
 import ToolbarByMonth from "./ToolbarByMonth";
 import TotalBalance from "./TotalBalance";
@@ -51,7 +59,8 @@ export default {
 	components: {
 		RecordsListItem,
 		ToolbarByMonth,
-		TotalBalance
+		TotalBalance,
+		RecordsFilter
 	},
 	data() {
 		return {
@@ -92,8 +101,8 @@ export default {
 	created() {
 		this.setRecords();
 	},
-	destroyed(){
-		this.subscriptions.forEach(s => s.unsubscribe())
+	destroyed() {
+		this.subscriptions.forEach(s => s.unsubscribe());
 	}
 };
 </script>

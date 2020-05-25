@@ -1,4 +1,5 @@
 # import * from './Operation.graphql'
+#import './RecordFragment.graphql'
 
 query RecordsByMonth (
   $month: String,
@@ -12,25 +13,6 @@ query RecordsByMonth (
     categoriesIds: $categoriesIds,
     type: $type,
   ) {
-    id
-    type 
-    amount
-    date
-    description
-    note
-    tags
-    account{
-      id
-      description
-    }
-    category{
-      id
-      description
-      operation
-    }
-    user{
-      id
-      name
-    }
+    ...RecordFragment
   }
 }
