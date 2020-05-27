@@ -40,9 +40,16 @@ const groupBy = (array, key, makeCurrencyKey) => {
   }, {})
 }
 
+const registerVuexModule = (rootStore, moduleName, store) => {
+  if(!(moduleName in rootStore._modules.root._children)){
+    rootStore.registerModule(moduleName, store)
+  }
+}
+
 export {
   formatError,
   errorHandler,
   currencyFormater,
-  groupBy
+  groupBy,
+  registerVuexModule
 }
