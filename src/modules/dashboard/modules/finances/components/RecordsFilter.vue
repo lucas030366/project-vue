@@ -1,12 +1,12 @@
 <template>
 	<div>
 		<div class="d-inline-flex">
-			<v-col>
-				<v-btn icon>
+			<v-col v-if="isFiltering">
+				<v-btn icon @click="filter('clear')">
 					<v-icon>fas fa-times</v-icon>
 				</v-btn>
 			</v-col>
-			<v-col>
+			<v-col :class="buttonFilterClass">
 				<v-btn icon @click="showFilterDialog = !showFilterDialog">
 					<v-icon>fas fa-filter</v-icon>
 				</v-btn>
@@ -40,6 +40,7 @@
 										item-text="description"
 										item-value="value"
 										@change="localFilters.type = $event"
+										:value="filters && filters.type"
 									></v-select>
 								</v-list-item-subtitle>
 							</v-list-item-content>
@@ -58,6 +59,7 @@
 										item-text="description"
 										item-value="id"
 										@change="localFilters.accountsIds = $event"
+										:value="filters && filters.accountsIds"
 									></v-select>
 								</v-list-item-subtitle>
 							</v-list-item-content>
@@ -76,6 +78,7 @@
 										item-text="description"
 										item-value="id"
 										@change="localFilters.categoriesIds = $event"
+										:value="filters && filters.categoriesIds"
 									></v-select>
 								</v-list-item-subtitle>
 							</v-list-item-content>
@@ -88,6 +91,9 @@
 </template>
 
 <script>
+import { createNamespacedHelpers } from "vuex";
+const { mapState, mapActions } = createNamespacedHelpers("finances");
+
 import AccountsService from "../services/accounts-services";
 import CategoriesService from "../services/categories-services";
 
@@ -111,8 +117,11 @@ export default {
 		};
 	},
 	methods: {
-		filter() {
-			console.log("KKK", this.localFilters);
+		...mapActions(["setFilters"]),
+		filter(type) {
+		this.showFilterDialog = false 
+		this.setFilters({ filters: type != "clear" ? this.localFilters : null})
+		this.$emit("filter")
 		},
 		setItems() {
 			this.subscriptions.push(
@@ -125,6 +134,12 @@ export default {
 					accounts => (this.accounts = accounts)
 				)
 			);
+		}
+	},
+	computed: {
+		...mapState(["filters", "isFiltering"]),
+		buttonFilterClass() {
+			return !this.isFiltering ? "offset-xs6" : "";
 		}
 	},
 	created() {

@@ -27,7 +27,7 @@ export default {
 			return this.total < 0 ? "error" : "primary";
 		},
 		totalInCurrency() {
-      return this.formatCurrency(this.total);
+			return this.formatCurrency(this.total);
 		}
 	},
 	async created() {

@@ -37,21 +37,17 @@
 			<v-list-item v-for="item of items" :key="item.title" :to="item.url" :exact="item.exact">
 				<v-list-item-icon>
 					<v-icon>{{ item.icon }}</v-icon>
-					</v-list-item-icon>
-					<v-list-item-content>
-						<v-list-item-title @click="$emit('input', false)">
-							{{item.title}}
-						</v-list-item-title>
-					</v-list-item-content>
-				
+				</v-list-item-icon>
+				<v-list-item-content>
+					<v-list-item-title @click="$emit('input', false)">{{item.title}}</v-list-item-title>
+				</v-list-item-content>
 			</v-list-item>
-
 		</v-list>
 	</v-navigation-drawer>
 </template>
 
 <script>
-import AuthService from "@/modules/auth/services/auth-service"
+import AuthService from "@/modules/auth/services/auth-service";
 export default {
 	name: "AppMenu",
 	props: {
@@ -77,14 +73,20 @@ export default {
 					icon: "fas fa-minus-circle",
 					url: "/dashboard/records/add?type=debit",
 					exact: true
+				},
+				{
+					title: "Relatórios",
+					icon: "fas fa-chart-bar",
+					url: "/dashboard/reports",
+					exact: true
 				}
 			],
 			mini: false,
 			user: null
 		};
 	},
-	async created(){
-		this.user = await AuthService.user()
+	async created() {
+		this.user = await AuthService.user();
 	}
 };
 </script>

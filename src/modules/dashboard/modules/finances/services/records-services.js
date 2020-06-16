@@ -13,7 +13,6 @@ const recordsWatchQuery = {}
 
 const records = (variables) => {
   const hashKey = md5(Object.keys(variables).map(key => variables[key]).join("_"))
-  console.log("HASHKEY", hashKey)
 
   let queryRef = recordsWatchQuery[hashKey]
 

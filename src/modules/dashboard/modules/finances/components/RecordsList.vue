@@ -3,11 +3,11 @@
 		<TotalBalance class="mb-2" />
 		<ToolbarByMonth
 			format="MM-YYYY"
-			:month="$route.query.month"
+			:month="month || $route.query.month"
 			:showSlot="true"
 			@month="changeMonth"
 		>
-			<RecordsFilter />
+			<RecordsFilter @filter="filter" />
 		</ToolbarByMonth>
 
 		<v-card v-if="records.length > 0">
@@ -38,6 +38,9 @@
 </template>
 
 <script>
+import { createNamespacedHelpers } from "vuex";
+const { mapState, mapActions } = createNamespacedHelpers("finances");
+
 import moment from "moment";
 import { groupBy } from "@/utils";
 import { Subject } from "rxjs";
@@ -65,27 +68,33 @@ export default {
 	data() {
 		return {
 			records: [],
-			monthSubject$: new Subject(), //emissor de eventos
+			filtersSubject$: new Subject(), //emissor de eventos
 			subscriptions: []
 		};
 	},
 	methods: {
+		...mapActions(["setMonth"]),
 		changeMonth(month) {
 			this.$router.push({
 				path: this.$route.path,
 				query: { month }
 			});
-			this.monthSubject$.next({ month });
+			this.setMonth({ month });
+			this.filter();
 		},
-		setRecords(month) {
+		setRecords() {
 			this.subscriptions.push(
-				this.monthSubject$
+				this.filtersSubject$
 					.pipe(mergeMap(variables => RecordsService.records(variables)))
 					.subscribe(records => (this.records = records))
 			);
+		},
+		filter() {
+			this.filtersSubject$.next({ month: this.month, ...this.filters });
 		}
 	},
 	computed: {
+		...mapState(["filters", "month"]),
 		mappedRecords() {
 			return groupBy(this.records, "date", (record, dateKey) => {
 				return moment(record[dateKey].substr(0, 10)).format("DD/MM/YYYY");
