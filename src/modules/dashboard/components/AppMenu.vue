@@ -79,6 +79,12 @@ export default {
 					icon: "fas fa-chart-bar",
 					url: "/dashboard/reports",
 					exact: true
+				},
+				{
+					title: "Maps",
+					icon: "fas fa-map",
+					url: "/dashboard/maps",
+					exact: true
 				}
 			],
 			mini: false,

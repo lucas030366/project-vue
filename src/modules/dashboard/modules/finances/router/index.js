@@ -1,6 +1,7 @@
 const RecordsHome = () => import("../views/RecordsHome")
 const RecordsAdd = () => import("../views/RecordsAdd")
 const ReportsHome = () => import("../views/ReportsHome")
+const GoogleMaps = () => import("../views/GoogleMaps")
 
 export default [
   {
@@ -18,6 +19,11 @@ export default [
   {
     path: "reports",
     component: ReportsHome,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "maps",
+    component: GoogleMaps,
     meta: { requiresAuth: true },
   }
 ]

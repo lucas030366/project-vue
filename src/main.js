@@ -8,6 +8,7 @@ import { errorHandler } from "@/utils"
 
 import "@/plugins/vuelidate"
 import "@/plugins/moment"
+import "@/plugins/google-maps"
 
 
 Vue.config.productionTip = false

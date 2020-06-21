@@ -4,9 +4,9 @@ const formatError = message => {
 }
 
 const errorHandler = (error, vm, info) => {
-  
+
   const jwtErrors = ["jwt malformed", "jwt expired", "jwt not active", "invalid token"]
-  
+
   if (jwtErrors.some(jwtError => error.message.includes(jwtError))) {
     vm.$route.push({
       path: "/login",
@@ -17,7 +17,7 @@ const errorHandler = (error, vm, info) => {
   }
 }
 
-const currencyFormater = ({locale, currency} = {locale: "pt-BR", currency: "BRL"}) => {
+const currencyFormater = ({ locale, currency } = { locale: "pt-BR", currency: "BRL" }) => {
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency
@@ -28,11 +28,11 @@ const currencyFormater = ({locale, currency} = {locale: "pt-BR", currency: "BRL"
 // [1,2,3,4].reduce((atual, numero) => atual + numero, 0) /*0 é o "atual inicial" p/ comecar*/
 
 const groupBy = (array, key, makeCurrencyKey) => {
-  return array.reduce( (accumulated, item) => {
+  return array.reduce((accumulated, item) => {
     const currencyKey = makeCurrencyKey(item, key)
-    return{
+    return {
       ...accumulated,
-      [currencyKey]:[
+      [currencyKey]: [
         ...(accumulated[currencyKey] || []),
         item
       ]
@@ -41,8 +41,87 @@ const groupBy = (array, key, makeCurrencyKey) => {
 }
 
 const registerVuexModule = (rootStore, moduleName, store) => {
-  if(!(moduleName in rootStore._modules.root._children)){
+  if (!(moduleName in rootStore._modules.root._children)) {
     rootStore.registerModule(moduleName, store)
+  }
+}
+
+const idX = (object, keyPath) => { //record.category.user.name
+  const keys = keyPath.split(".") // ["record","category","user","name"]
+  return keys.reduce((obj, current) =>
+    obj && obj[current] != null ? obj[current] : null
+    , object)
+}
+
+const generateChartData = ({ items, keyToGroup, keyOfValue, aliases, type, bgColor }) => {
+  const grouped = groupBy(items, keyToGroup, idX)
+  const response = {}
+
+  for (let key in grouped) {
+    response[(aliases && aliases[key]) || key] =
+      grouped[key].reduce((acc, item) => acc + item[keyOfValue], 0)
+  }
+  
+  const labels = Object.keys(response)
+
+  switch (type) {
+    case "bar":
+
+      return {
+        datasets: labels.map((label, indice) => ({
+          label: `${label}: ${currencyFormater().format(response[label])}`,
+          data: [response[label] >= 0 ? response[label] : -response[label]],
+          backgroundColor: bgColor[indice],
+          borderWidth: 0
+        })),
+        labels: [""]
+      }
+  }
+}
+
+const generateChartOptions = (type) => {
+
+  let tooltips = null 
+
+  switch (type) {
+    case "bar":
+      tooltips = {
+        callbacks : {
+          title() {},
+          label(tooltip, data){
+            return data.datasets[tooltip.datasetIndex].label
+          }
+        }
+      } 
+      break;
+  
+    default:
+      break;
+  }
+
+  const scales = {
+    yAxes: [{
+      ticks: {
+        beginAtZero: true
+      }
+    }]
+  }
+
+  return {
+    scales,
+    tooltips
+  }
+}
+
+const generateChartJsConfig = opts => {
+  const { type } = opts
+  const data = generateChartData(opts)
+  const options = generateChartOptions(type)
+
+  return {
+    type,
+    data,
+    options
   }
 }
 
@@ -51,5 +130,6 @@ export {
   errorHandler,
   currencyFormater,
   groupBy,
-  registerVuexModule
+  registerVuexModule,
+  generateChartJsConfig
 }

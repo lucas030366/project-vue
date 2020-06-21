@@ -16,6 +16,7 @@
     "moment": "^2.24.0",
     "rxjs": "^6.5.5",
     "vue": "^2.6.11",
+    "vue-googlemaps": "^0.1.2",
     "vue-router": "^3.1.6",
     "vuelidate": "^0.7.5",
     "vuetify": "^2.2.11",

@@ -24,6 +24,8 @@
 import chart from "chart.js";
 import { mapActions, mapState } from "vuex";
 
+import { generateChartJsConfig } from "@/utils";
+
 import { Subject } from "rxjs";
 import { mergeMap } from "rxjs/operators";
 
@@ -38,6 +40,7 @@ export default {
 			monthSubject$: new Subject(),
 			records: [],
 			subscriptions: [],
+			recXdes: null,
 			charts: [
 				{ title: "Receitas x Despesas", refId: "recXdes" },
 				{ title: "Despesas por Categoria", refId: "catDes" }
@@ -65,36 +68,31 @@ export default {
 					})
 			);
 		},
+		createChart(chartId, options) {
+			const ref = Array.isArray(this.$refs[chartId])
+				? this.$refs[chartId][0]
+				: this.$refs[chartId];
+
+			const ctx = ref.getContext("2d");
+
+			return new Chart(ctx, options);
+		},
 		setCharts() {
-			const ctx = this.$refs.recXdes[0].getContext("2d");
-			const myChart = new Chart(ctx, {
+			const chartRecDesConfigs = generateChartJsConfig({
 				type: "bar",
-				data: {
-					datasets: [
-						{
-							data: [500],
-							label: "Receitas",
-							backgroundColor: ["#00897b"]
-						},
-						{
-							data: [350],
-							label: "Despesas",
-							backgroundColor: ["#c2185b"]
-						}
-					]
-				},
-				options: {
-					scales: {
-						yAxes: [
-							{
-								ticks: {
-									beginAtZero: true
-								}
-							}
-						]
-					}
-				}
+				items: this.records,
+				keyToGroup: "type", //DEBIT ou CREDIT
+				keyOfValue: "amount",
+				aliases: { CREDIT: "Receitas", DEBIT: "Despesas" },
+				bgColor: ["#00897b", "#c2185b"]
 			});
+
+			if (this.recXdes) {
+				this.recXdes.data.datasets = chartRecDesConfigs.data.datasets;
+				this.recXdes.update();
+			} else {
+				this.recXdes = this.createChart("recXdes", chartRecDesConfigs);
+			}
 		}
 	},
 	computed: {
