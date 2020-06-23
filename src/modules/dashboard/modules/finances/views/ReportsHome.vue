@@ -41,6 +41,7 @@ export default {
 			records: [],
 			subscriptions: [],
 			recXdes: null,
+			catDes: null,
 			charts: [
 				{ title: "Receitas x Despesas", refId: "recXdes" },
 				{ title: "Despesas por Categoria", refId: "catDes" }
@@ -68,31 +69,47 @@ export default {
 					})
 			);
 		},
-		createChart(chartId, options) {
+		updateOrCreateChart(chartId, options) {
+			if (this[chartId]) {
+				this[chartId].data.datasets = options.data.datasets;
+
+				if (options.data.labels) {
+					this[chartId].data.labels = options.data.labels;
+				}
+
+				this[chartId].update();
+				return this[chartId];
+			}
+
 			const ref = Array.isArray(this.$refs[chartId])
 				? this.$refs[chartId][0]
 				: this.$refs[chartId];
 
 			const ctx = ref.getContext("2d");
 
-			return new Chart(ctx, options);
+			this[chartId] = new Chart(ctx, options);
+			return this[chartId]
 		},
 		setCharts() {
-			const chartRecDesConfigs = generateChartJsConfig({
+			//RECEITAS E DESPESAS
+			this.updateOrCreateChart("recXdes", generateChartJsConfig({
 				type: "bar",
 				items: this.records,
 				keyToGroup: "type", //DEBIT ou CREDIT
 				keyOfValue: "amount",
 				aliases: { CREDIT: "Receitas", DEBIT: "Despesas" },
-				bgColor: ["#00897b", "#c2185b"]
-			});
+				bgColor: ["#c2185b", "#00897b"]
+			}))
 
-			if (this.recXdes) {
-				this.recXdes.data.datasets = chartRecDesConfigs.data.datasets;
-				this.recXdes.update();
-			} else {
-				this.recXdes = this.createChart("recXdes", chartRecDesConfigs);
-			}
+			//DESPESAS POR CATEGORIAS
+			this.updateOrCreateChart("catDes", generateChartJsConfig({
+				type: "doughnut",
+				items: this.records.filter(r => r.type == "DEBIT"),
+				keyToGroup: "category.description",
+				keyOfValue: "amount",
+				bgColor: ["orange", "blue", "green", "yellow"]
+			}))
+
 		}
 	},
 	computed: {

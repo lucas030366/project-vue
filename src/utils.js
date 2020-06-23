@@ -61,10 +61,11 @@ const generateChartData = ({ items, keyToGroup, keyOfValue, aliases, type, bgCol
     response[(aliases && aliases[key]) || key] =
       grouped[key].reduce((acc, item) => acc + item[keyOfValue], 0)
   }
-  
+
   const labels = Object.keys(response)
 
   switch (type) {
+    
     case "bar":
 
       return {
@@ -76,25 +77,47 @@ const generateChartData = ({ items, keyToGroup, keyOfValue, aliases, type, bgCol
         })),
         labels: [""]
       }
+
+    case "doughnut":
+      return {
+        datasets: [{
+          data: labels.map(label => response[label] >= 0 ? response[label] : -response[label]),
+          backgroundColor: bgColor,
+          borderWidth: 0
+        }],
+        labels: items.length > 0 ? labels : []
+      }
   }
 }
 
 const generateChartOptions = (type) => {
 
-  let tooltips = null 
+  let tooltips = {}
 
   switch (type) {
     case "bar":
       tooltips = {
-        callbacks : {
-          title() {},
-          label(tooltip, data){
+        callbacks: {
+          title() { },
+          label(tooltip, data) {
             return data.datasets[tooltip.datasetIndex].label
           }
         }
-      } 
+      }
       break;
-  
+    
+    case "doughnut":
+      tooltips = {
+        callbacks: {
+          label(tooltip, data){
+            const label = data.labels[tooltip.index]
+            const value = currencyFormater().format(data.datasets[tooltip.datasetIndex].data[tooltip.index])
+            return `${label}: ${value}`
+          }
+        }
+      }
+    break;
+
     default:
       break;
   }
