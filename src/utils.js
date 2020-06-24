@@ -1,3 +1,5 @@
+import colors from "vuetify/es5/util/colors"
+
 const formatError = message => {
   const messageSplit = message.split(":")
   return messageSplit[messageSplit.length - 1].trim()
@@ -82,7 +84,7 @@ const generateChartData = ({ items, keyToGroup, keyOfValue, aliases, type, bgCol
       return {
         datasets: [{
           data: labels.map(label => response[label] >= 0 ? response[label] : -response[label]),
-          backgroundColor: bgColor,
+          backgroundColor: bgColor || generateColors(labels.length),
           borderWidth: 0
         }],
         labels: items.length > 0 ? labels : []
@@ -146,6 +148,23 @@ const generateChartJsConfig = opts => {
     data,
     options
   }
+}
+
+const generateColors = length => {
+  const pallets = Object.keys(colors).filter(cores => cores != "shades").sort()
+  const tones = ["base", "darken1", "lighten1"]
+  let currentPallet = 0
+  let currentTone = 0
+
+  return Array(length).fill().map((item,indice) => {
+    const color = colors[pallets[currentPallet]][tones[currentTone]]
+    currentPallet++
+    if((indice+1) % pallets.length == 0){
+      currentPallet = 0
+      currentTone++
+    }
+    return color 
+  })
 }
 
 export {

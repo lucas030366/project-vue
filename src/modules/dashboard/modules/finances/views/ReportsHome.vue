@@ -4,7 +4,7 @@
 			format="MM-YY"
 			:month="month || $route.query.month"
 			@month="changeMonth"
-			color="primary"
+			:color="color"
 		/>
 
 		<v-row>
@@ -106,14 +106,19 @@ export default {
 				type: "doughnut",
 				items: this.records.filter(r => r.type == "DEBIT"),
 				keyToGroup: "category.description",
-				keyOfValue: "amount",
-				bgColor: ["orange", "blue", "green", "yellow"]
+				keyOfValue: "amount"
 			}))
 
 		}
 	},
 	computed: {
-		...mapState("finances", ["month"])
+		...mapState("finances", ["month"]),
+		recordsSum() {
+			return this.records.reduce((acc, record) => acc + record.amount, 0)
+		},
+		color(){
+			return this.recordsSum < 0 ? "error" : "primary"
+		}
 	},
 	created() {
 		this.setTitle({ title: "Relatórios" });
