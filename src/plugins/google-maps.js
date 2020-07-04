@@ -1,9 +1,10 @@
 import Vue from "vue"
 import 'vue-googlemaps/dist/vue-googlemaps.css'
-import VueGoogleMaps from 'vue-googlemaps'
+import * as VueGoogleMaps from 'vue2-google-maps'
  
 Vue.use(VueGoogleMaps, {
   load: {
-    apiKey: ""
+    key: ''
   }
 })
+

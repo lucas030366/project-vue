@@ -1,28 +1,35 @@
 <template>
 	<v-container>
-		<p>{{ center}}</p>
-		<googlemaps-map
+		{{ map }}
+		<gmapMap
 			v-if="this.map.lat"
 			:center="center"
-			:zoom="17"
-			:options="{styles: styles['hide']}"
+			:zoom="19"
+			:options="{styles: styles['hideOptionsMap']}"
 			:streetViewControl="false"
-			style="height:500px"
+			style="height:498px"
 		>
-			<googlemaps-marker
+			<gmap-marker
 				v-for="loja of lojas"
 				:key="loja._id"
 				:position="loja.position"
-				:icon="loja.icon"
+				:clickable="true"
+				:draggable="true"
 				@click="infoWindow(loja)"
 			/>
-		</googlemaps-map>		
-
-		<v-sheet v-else color="grey " class="px-3 pt-3 pb-3">
-			<v-skeleton-loader class="mx-auto" max-width="300" type="card"></v-skeleton-loader>
-		</v-sheet>
-
-		<h3>Teste</h3>
+			<gmap-info-window
+				:opened="showInfoWindow"
+				:position="content.position"
+				:options="styles.hideInfoWindow"
+			>
+				<div v-if="content.text" class="black--text">
+					<h2>{{ content.loja.nome }}</h2>
+					<h6>{{ content.loja.info }}</h6>
+					<v-btn @click="submit(content)">Go</v-btn>
+				</div>
+			</gmap-info-window>
+		</gmapMap>
+		<v-btn @click="getEnderecoUser" text>Gerar</v-btn>
 	</v-container>
 </template>
 
@@ -32,27 +39,38 @@ export default {
 	data() {
 		return {
 			map: { lat: null, lng: null },
-			linkIcone: "https://via.placeholder.com/50"
+			linkIcone: "https://via.placeholder.com/50",
+			content: {
+				text: null,
+				position: { lat: 0, lng: 0 },
+				loja: null
+			},
+			showInfoWindow: false
 		};
 	},
 	methods: {
-		local() {
-			if (localStorage.center) {
-				this.map = JSON.parse(localStorage.center);
-			} else {
-				navigator.geolocation.getCurrentPosition(
-					position => {
-						(this.map.lat = position.coords.latitude),
-							(this.map.lng = position.coords.longitude);
-					},
-					error => {
-						console.log(error.message);
-					}
-				);
+		getCoordenadasUser() {
+			return new Promise(function(resolve, reject) {
+				navigator.geolocation.getCurrentPosition(resolve, reject);
+			});
+		},
+		async getEnderecoUser() {
+			try {
+				const position = await this.getCoordenadasUser();
+				this.map.lat = position.coords.latitude;
+				this.map.lng = position.coords.longitude;
+			} catch (error) {
+				console.log(error.message);
 			}
 		},
 		infoWindow(loja) {
-			console.log("InfoView:", loja.info);
+			this.showInfoWindow = !this.showInfoWindow;
+			this.content.text = loja.info;
+			this.content.position = loja.position;
+			this.content.loja = loja;
+		},
+		submit(all) {
+			console.log(all);
 		}
 	},
 	computed: {
@@ -62,22 +80,28 @@ export default {
 		lojas() {
 			return [
 				{
+					id: 1,
+					nome: "Pizzaria 1",
 					position: { lat: this.map.lat, lng: this.map.lng }, //, icon: this.linkIcone
 					info: "Meu Local"
 				},
 				{
+					id: 2,
+					nome: "Pizzaria 2",
 					position: { lat: -25.3499388, lng: -49.1779297 },
-					info: "teste1"
+					info: "teste 1"
 				},
 				{
+					id: 3,
+					nome: "Pizzaria 3",
 					position: { lat: -25.3484276, lng: -49.178759 },
-					info: "teste2"
+					info: "teste 2"
 				}
 			];
 		},
 		styles() {
 			return {
-				hide: [
+				hideOptionsMap: [
 					{
 						featureType: "all",
 						stylers: [{ visibility: "off" }]
@@ -86,12 +110,15 @@ export default {
 						featureType: "road",
 						stylers: [{ visibility: "on" }]
 					}
-				]
+				],
+				hideInfoWindow: {
+					pixelOffset: {
+						width: 0,
+						height: -35
+					}
+				}
 			};
 		}
-	},
-	created() {
-		this.local();
 	}
 };
 </script>
