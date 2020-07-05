@@ -18,13 +18,14 @@
 				@click="infoWindow(loja)"
 			/>
 			<gmap-info-window
+				v-if="content"
 				:opened="showInfoWindow"
 				:position="content.position"
 				:options="styles.hideInfoWindow"
 			>
-				<div v-if="content.text" class="black--text">
-					<h2>{{ content.loja.nome }}</h2>
-					<h6>{{ content.loja.info }}</h6>
+				<div class="black--text">
+					<h2>{{ content.nome }}</h2>
+					<h6>{{ content.info }}</h6>
 					<v-btn @click="submit(content)">Go</v-btn>
 				</div>
 			</gmap-info-window>
@@ -40,11 +41,7 @@ export default {
 		return {
 			map: { lat: null, lng: null },
 			linkIcone: "https://via.placeholder.com/50",
-			content: {
-				text: null,
-				position: { lat: 0, lng: 0 },
-				loja: null
-			},
+			content: null,
 			showInfoWindow: false
 		};
 	},
@@ -65,12 +62,10 @@ export default {
 		},
 		infoWindow(loja) {
 			this.showInfoWindow = !this.showInfoWindow;
-			this.content.text = loja.info;
-			this.content.position = loja.position;
-			this.content.loja = loja;
+			this.content = loja;
 		},
 		submit(all) {
-			console.log(all);
+			console.log("ok");
 		}
 	},
 	computed: {
