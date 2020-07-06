@@ -2,7 +2,7 @@
 	<v-container>
 		{{ map }}
 		<gmapMap
-			v-if="this.map.lat"
+			v-if="this.map.lat && this.map.lng"
 			:center="center"
 			:zoom="19"
 			:options="{styles: styles['hideOptionsMap']}"
@@ -31,10 +31,22 @@
 			</gmap-info-window>
 		</gmapMap>
 		<v-btn @click="getEnderecoUser" text>Gerar</v-btn>
+
+		<v-row>
+			<v-col cols="4">
+				<v-text-field v-model="endereco.logradouro" label="Endereço" filled shaped></v-text-field>
+				<v-text-field v-model="endereco.numero" label="número" filled shaped></v-text-field>
+				<v-text-field v-model="endereco.cidade" label="cidade" filled shaped></v-text-field>
+				<v-text-field v-model="endereco.estado" label="Estado" filled shaped></v-text-field>
+			</v-col>
+			<v-btn @click="getEndereco" color="danger">OK</v-btn>
+		</v-row>
 	</v-container>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
 	name: "GoogleMaps",
 	data() {
@@ -42,20 +54,50 @@ export default {
 			map: { lat: null, lng: null },
 			linkIcone: "https://via.placeholder.com/50",
 			content: null,
-			showInfoWindow: false
+			showInfoWindow: false,
+			endereco: {
+				logradouro: null,
+				numero: null,
+				cidade: null,
+				estado: null
+			}
 		};
 	},
 	methods: {
+		getEndereco() {
+			const logradouro = this.endereco.logradouro.split(" ").join("+");
+			const numero = this.endereco.numero;
+			const cidade = this.endereco.cidade;
+			const estado = this.endereco.estado;
+			const key = "AIzaSyDe4nn2DY_NSI4901lconIQk44fkee95pg";
+			//https://maps.googleapis.com/maps/api/geocode/json?address=rua+vida+zonta,240,PR&key=chave
+			const link = `https://maps.googleapis.com/maps/api/geocode/json?address=${logradouro},${numero},${cidade},${estado}&key=${key}`;
+
+			const $self = this;
+			axios.get(link).then(function(response) {
+				try {
+					const coordernadas = response.data.results[0].geometry.location;
+					return $self.getEnderecoUser(coordernadas);
+				} catch (error) {
+					console.log(error.message);
+				}
+			});
+		},
 		getCoordenadasUser() {
 			return new Promise(function(resolve, reject) {
 				navigator.geolocation.getCurrentPosition(resolve, reject);
 			});
 		},
-		async getEnderecoUser() {
+		async getEnderecoUser(coordernadas) {
 			try {
-				const position = await this.getCoordenadasUser();
-				this.map.lat = position.coords.latitude;
-				this.map.lng = position.coords.longitude;
+				if (coordernadas.lat && coordernadas.lng) {
+					this.map.lat = coordernadas.lat;
+					this.map.lng = coordernadas.lng;
+				} else {
+					const position = await this.getCoordenadasUser();
+					this.map.lat = position.coords.latitude;
+					this.map.lng = position.coords.longitude;
+				}
 			} catch (error) {
 				console.log(error.message);
 			}
