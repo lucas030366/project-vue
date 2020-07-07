@@ -47,6 +47,8 @@
 <script>
 import axios from "axios";
 
+import dados from "@/resources/googleService";
+
 export default {
 	name: "GoogleMaps",
 	data() {
@@ -64,24 +66,9 @@ export default {
 		};
 	},
 	methods: {
-		getEndereco() {
-			const logradouro = this.endereco.logradouro.split(" ").join("+");
-			const numero = this.endereco.numero;
-			const cidade = this.endereco.cidade;
-			const estado = this.endereco.estado;
-			const key = "AIzaSyDe4nn2DY_NSI4901lconIQk44fkee95pg";
-			//https://maps.googleapis.com/maps/api/geocode/json?address=rua+vida+zonta,240,PR&key=chave
-			const link = `https://maps.googleapis.com/maps/api/geocode/json?address=${logradouro},${numero},${cidade},${estado}&key=${key}`;
-
-			const $self = this;
-			axios.get(link).then(function(response) {
-				try {
-					const coordernadas = response.data.results[0].geometry.location;
-					return $self.getEnderecoUser(coordernadas);
-				} catch (error) {
-					console.log(error.message);
-				}
-			});
+		async getEndereco() {
+			let teste = await dados.getEndereco(this.endereco);
+			console.log(teste);
 		},
 		getCoordenadasUser() {
 			return new Promise(function(resolve, reject) {
